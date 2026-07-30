@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I'm Sorry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blush:#FFEDF2;
+    --petal:#FFD3DF;
+    --rose:#E8577F;
+    --deep-rose:#C23B63;
+    --plum:#4A1F35;
+    --card:#FFF8FA;
+    --gold:#E7B7A3;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:linear-gradient(180deg,var(--blush) 0%, #FFE2EA 45%, #FFD8E4 100%);
+    font-family:'Quicksand',sans-serif;
+    color:var(--plum);
+    overflow-x:hidden;
+    min-height:100vh;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  /* Floating petals */
+  .petal{
+    position:fixed;
+    top:-40px;
+    font-size:1.4rem;
+    color:var(--rose);
+    opacity:0.55;
+    pointer-events:none;
+    animation:fall linear infinite;
+    z-index:1;
+    user-select:none;
+  }
+  @keyframes fall{
+    0%{transform:translateY(-10vh) translateX(0) rotate(0deg);}
+    100%{transform:translateY(110vh) translateX(var(--drift,30px)) rotate(360deg);}
+  }
+
+  /* HERO */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:2rem 1.5rem;
+    position:relative;
+    z-index:2;
+  }
+  .eyebrow{
+    font-size:0.85rem;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--deep-rose);
+    font-weight:600;
+    margin-bottom:1.2rem;
+  }
+  .hero h1{
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:clamp(2.6rem, 8vw, 5rem);
+    color:var(--deep-rose);
+    line-height:1.1;
+    margin-bottom:1.4rem;
+    text-shadow:0 2px 24px rgba(194,59,99,0.15);
+  }
+  .hero p{
+    max-width:34ch;
+    font-size:1.15rem;
+    line-height:1.6;
+    color:var(--plum);
+    opacity:0.85;
+    margin-bottom:2.6rem;
+  }
+  .scroll-hint{
+    font-size:0.8rem;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color:var(--deep-rose);
+    opacity:0.6;
+    animation:bob 2.2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(8px);}
+  }
+
+  /* SEALED LETTER SECTION - signature element */
+  .letter-section{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:3rem 1.5rem;
+    position:relative;
+    z-index:2;
+  }
+  .envelope-wrap{
+    perspective:1200px;
+    width:min(420px, 90vw);
+  }
+  .envelope{
+    position:relative;
+    width:100%;
+    aspect-ratio:4/2.7;
+    cursor:pointer;
+    transition:transform 0.4s ease;
+  }
+  .envelope:hover{transform:translateY(-4px);}
+  .env-body{
+    position:absolute;
+    inset:0;
+    background:var(--card);
+    border-radius:10px;
+    box-shadow:0 20px 50px rgba(194,59,99,0.25);
+  }
+  .env-flap{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:55%;
+    background:linear-gradient(135deg, var(--petal), var(--rose));
+    clip-path:polygon(0 0, 100% 0, 50% 100%);
+    transform-origin:top;
+    transition:transform 0.7s cubic-bezier(.6,-0.1,.3,1.4);
+    border-radius:10px 10px 0 0;
+    z-index:3;
+  }
+  .envelope.open .env-flap{
+    transform:rotateX(180deg);
+  }
+  .seal{
+    position:absolute;
+    top:38%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:56px; height:56px;
+    background:var(--deep-rose);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-size:1.4rem;
+    box-shadow:0 4px 14px rgba(194,59,99,0.5);
+    z-index:4;
+    transition:opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s;
+  }
+  .envelope.open .seal{opacity:0; transform:translate(-50%,-50%) scale(0.4);}
+  .prompt-text{
+    text-align:center;
+    margin-top:1.6rem;
+    color:var(--deep-rose);
+    font-size:0.95rem;
+    letter-spacing:0.05em;
+  }
+  .envelope.open ~ .prompt-text{opacity:0;}
+
+  .letter-paper{
+    position:absolute;
+    inset:8% 6%;
+    background:#fff;
+    border-radius:6px;
+    padding:1.8rem 1.6rem;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+    opacity:0;
+    transform:translateY(10px);
+    transition:opacity 0.6s ease 0.5s, transform 0.6s ease 0.5s;
+    overflow-y:auto;
+    z-index:2;
+  }
+  .envelope.open .letter-paper{opacity:1; transform:translateY(-6%);}
+  .letter-paper h2{
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    color:var(--deep-rose);
+    font-size:1.3rem;
+    margin-bottom:0.7rem;
+  }
+  .letter-paper p{
+    font-size:0.92rem;
+    line-height:1.55;
+    color:var(--plum);
+  }
+  .letter-paper .sign{
+    display:block;
+    margin-top:0.8rem;
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    color:var(--rose);
+  }
+
+  /* REASONS */
+  .reasons{
+    padding:5rem 1.5rem 4rem;
+    position:relative;
+    z-index:2;
+  }
+  .reasons h2{
+    text-align:center;
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-weight:600;
+    color:var(--deep-rose);
+    font-size:clamp(1.8rem,5vw,2.6rem);
+    margin-bottom:2.8rem;
+  }
+  .reason-grid{
+    max-width:800px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    gap:1.2rem;
+  }
+  .reason-card{
+    background:var(--card);
+    border-radius:16px;
+    padding:1.6rem 1.4rem;
+    box-shadow:0 8px 24px rgba(194,59,99,0.12);
+    transition:transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .reason-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 14px 30px rgba(194,59,99,0.2);
+  }
+  .reason-card .icon{font-size:1.6rem;margin-bottom:0.6rem;display:block;}
+  .reason-card p{font-size:0.95rem;line-height:1.5;color:var(--plum);opacity:0.9;}
+
+  /* FORGIVE SECTION */
+  .ask{
+    min-height:80vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:3rem 1.5rem;
+    position:relative;
+    z-index:2;
+  }
+  .ask h2{
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:clamp(1.8rem,6vw,3rem);
+    color:var(--deep-rose);
+    margin-bottom:2.2rem;
+  }
+  .btn-row{
+    display:flex;
+    gap:1rem;
+    flex-wrap:wrap;
+    justify-content:center;
+    position:relative;
+    min-height:70px;
+    align-items:center;
+  }
+  button{
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:1rem;
+    border:none;
+    border-radius:50px;
+    padding:0.9rem 2.2rem;
+    cursor:pointer;
+  }
+  .btn-yes{
+    background:var(--deep-rose);
+    color:#fff;
+    box-shadow:0 10px 24px rgba(194,59,99,0.35);
+    transition:transform 0.2s ease;
+  }
+  .btn-yes:hover{transform:scale(1.05);}
+  .btn-no{
+    background:transparent;
+    border:2px solid var(--rose);
+    color:var(--deep-rose);
+    position:relative;
+    transition:transform 0.15s ease;
+  }
+  .result{
+    margin-top:2rem;
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-size:1.4rem;
+    color:var(--deep-rose);
+    opacity:0;
+    transform:translateY(8px);
+    transition:opacity 0.5s ease, transform 0.5s ease;
+  }
+  .result.show{opacity:1; transform:translateY(0);}
+
+  .footer-note{
+    text-align:center;
+    font-size:0.75rem;
+    color:var(--deep-rose);
+    opacity:0.5;
+    padding:2rem 1.5rem 3rem;
+    position:relative;
+    z-index:2;
+  }
+</style>
+</head>
+<body>
+
+<div id="petals"></div>
+
+<section class="hero">
+  <div class="eyebrow">a small letter for you</div>
+  <h1>I'm sorry, love.</h1>
+  <p>I've been carrying this feeling all day and I needed to tell you properly. Open the letter below when you're ready.</p>
+  <div class="scroll-hint">scroll down ↓</div>
+</section>
+
+<section class="letter-section">
+  <div>
+    <div class="envelope-wrap">
+      <div class="envelope" id="envelope">
+        <div class="letter-paper">
+          <h2>To you,</h2>
+          <p>
+            I'm sorry for what I said, and for not thinking about how it would land on you.
+            You didn't deserve that, and I keep replaying it wishing I'd handled it differently.
+            You mean more to me than my pride does — I just want us to be okay again.
+            Thank you for being patient with me while I figure out how to be better.
+          </p>
+          <span class="sign">— always yours</span>
+        </div>
+        <div class="env-flap"></div>
+        <div class="seal">S</div>
+        <div class="env-body"></div>
+      </div>
+    </div>
+    <div class="prompt-text">tap the envelope to open it</div>
+  </div>
+</section>
+
+<section class="reasons">
+  <h2>a few things I love about you</h2>
+  <div class="reason-grid">
+    <div class="reason-card"><span class="icon">🌸</span><p>The way you laugh at your own jokes before you even finish telling them.</p></div>
+    <div class="reason-card"><span class="icon">🤍</span><p>How you always check in on the people you care about, even on your hardest days.</p></div>
+    <div class="reason-card"><span class="icon">🍓</span><p>Your patience with me, even when I don't deserve it.</p></div>
+    <div class="reason-card"><span class="icon">🎀</span><p>How safe and at home I feel whenever I'm around you.</p></div>
+  </div>
+</section>
+
+<section class="ask">
+  <h2>Will you forgive me?</h2>
+  <div class="btn-row">
+    <button class="btn-yes" id="yesBtn">Yes, I forgive you 🌷</button>
+    <button class="btn-no" id="noBtn">Not yet</button>
+  </div>
+  <div class="result" id="result"></div>
+</section>
+
+<div class="footer-note">made with a lot of love (and a little bit of regret) 💌</div>
+
+<script>
+  // floating petals
+  const petalContainer = document.getElementById('petals');
+  const petalChars = ['🌸','🌷','💗','🌺'];
+  for(let i=0;i<18;i++){
+    const p = document.createElement('div');
+    p.className='petal';
+    p.textContent = petalChars[Math.floor(Math.random()*petalChars.length)];
+    p.style.left = Math.random()*100+'vw';
+    p.style.fontSize = (1+Math.random()*1.2)+'rem';
+    p.style.setProperty('--drift', (Math.random()*80-40)+'px');
+    p.style.animationDuration = (9+Math.random()*10)+'s';
+    p.style.animationDelay = (Math.random()*10)+'s';
+    petalContainer.appendChild(p);
+  }
+
+  // envelope open
+  const envelope = document.getElementById('envelope');
+  envelope.addEventListener('click', () => {
+    envelope.classList.toggle('open');
+  });
+
+  // playful "not yet" button that dodges a couple times, then settles
+  const noBtn = document.getElementById('noBtn');
+  const yesBtn = document.getElementById('yesBtn');
+  const row = document.querySelector('.btn-row');
+  let dodges = 0;
+  noBtn.addEventListener('click', (e) => {
+    if(dodges < 2){
+      const maxX = row.clientWidth - noBtn.clientWidth - 10;
+      const maxY = 20;
+      const x = (Math.random()-0.5)*Math.min(maxX,160);
+      const y = (Math.random()-0.5)*maxY;
+      noBtn.style.transform = `translate(${x}px, ${y}px)`;
+      dodges++;
+    } else {
+      noBtn.textContent = "okay, take your time 💕";
+      noBtn.style.transform = 'none';
+      noBtn.disabled = true;
+      noBtn.style.opacity = '0.6';
+    }
+  });
+
+  const result = document.getElementById('result');
+  yesBtn.addEventListener('click', () => {
+    result.textContent = "Thank you for loving me even when I mess up. I love you. 💗";
+    result.classList.add('show');
+    yesBtn.textContent = "Yay! 🎉";
+  });
+</script>
+
+</body>
+</html>
